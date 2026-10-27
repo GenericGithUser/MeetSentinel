@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#304D6D">
+    <title>MeetSentinel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap">
+    <link rel="stylesheet" href="/src/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+    <link rel="manifest" href="/assets/favicon/site.webmanifest">
+</head>
+<body>
+    <!-- SPA shell. src/main.js shows exactly one of: splash (checking sign-in), hero (signed out), main (signed in)
+         by toggling the "none" class. Views render into <main id="view">. -->
+
+    <div class="splash none" id="splash" role="status" aria-label="Loading">
+        <span class="logoPlate splashPlate"><img src="/assets/Logo.png" alt="" class="splashImg"></span>
+    </div>
+
+    <header class="nav">
+        <a href="#/" class="brand" aria-label="MeetSentinel home">
+            <span class="logoPlate"><img src="/assets/MeetSentinel-flat.png" alt="MeetSentinel" class="logo"></span>
+        </a>
+        <!-- APPEARS ONLY WHEN SIGNED IN -->
+        <div class="navCont none" id="navUser">
+            <p class="greeting" id="greeting">Hello User!</p>
+            <button class="signOut" id="signOutBtn" type="button">Sign Out</button>
+        </div>
+    </header>
+
+    <!-- APPEARS ONLY WHEN SIGNED OUT -->
+    <section class="hero none" id="hero">
+        <div class="heroCard">
+            <span class="logoPlate heroPlate"><img src="/assets/MeetSentinel-Stand.png" alt="MeetSentinel" class="heroImg"></span>
+            <h1>A Google Meet Student Monitoring Extension and Viewer</h1>
+
+            <p class="setupNote none" id="setupNote" role="alert">
+                Firebase isn't configured. Copy <code>web/.env.example</code> to <code>web/.env</code>, fill in your project's web config, and restart the dev server.
+            </p>
+
+            <button class="signBtn" id="signInBtn" type="button">Sign In with Google</button>
+
+            <!-- APPEARS ONLY WITH THE FIREBASE EMULATORS (VITE_USE_EMULATORS=true) -->
+            <div class="devSignIn none" id="devSignIn">
+                <p>Emulator only. Skips the Google popup; any email works, so you can test two teachers.</p>
+                <div class="row">
+                    <label class="sr" for="devEmail">Fake teacher email</label>
+                    <input class="inputBox" id="devEmail" type="text" value="teacher@uni.edu" autocomplete="off">
+                    <button class="secondary" id="devBtn" type="button">Sign in as fake teacher</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPEARS ONLY WHEN SIGNED IN -->
+    <main class="main none" id="view"></main>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+<!--
+This file is part of MeetSentinel.
+
+MeetSentinel is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+MeetSentinel is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>.
+
+-->

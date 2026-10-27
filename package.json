@@ -1,0 +1,24 @@
+{
+  "name": "meetsentinel",
+  "version": "3.0.0",
+  "private": true,
+  "workspaces": [
+    "extension",
+    "web"
+  ],
+  "scripts": {
+    "dev:ext": "npm run dev -w extension",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build -w extension && npm run build -w web",
+    "test": "npm test -w extension && npm test -w web",
+    "emulators": "firebase emulators:start --project demo-meetsentinel",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-meetsentinel \"node --test tests/rules/rules.test.mjs\"",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
+    "deploy:web": "npm run build -w web && firebase deploy --only hosting"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.0.0",
+    "firebase-tools": "^15.34.0"
+  }
+}

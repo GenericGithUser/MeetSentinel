@@ -1,0 +1,295 @@
+/* MeetSentinel teacher site. Palette, gradient and component shapes come from the original mockup (style.css).
+   Deliberate changes, all for legibility:
+   - Text never sits directly on the animated gradient. The wordmark's grey "Meet" is 1.0:1 against the gradient's
+     mid-blue (WCAG wants 3:1+), and cream text drops to 1.4:1 on its light-teal phase. So the nav, hero and content
+     are dark panels, logos sit on a white plate, and the gradient is background only.
+   - Button text is dark navy on the light-blue buttons (cream on #9AD1D4 is about 1.4:1).
+   - Font sizes are rem, not ch (the mockup's 1.2ch hint text rendered at roughly 10px). */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Google Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+:root {
+    --background: #304D6D;
+    --secondary: #545E75;
+    --white: #fdeadd;
+    --blue: #9AD1D4;
+    --darkBlue: #82A0BC;
+
+    --ink: #12263a;                    /* text on light-blue buttons */
+    --muted: #ecdacd;                  /* secondary text (the mockup's #e0cec2, lightened to pass 4.5:1 on every panel) */
+    --rule: rgba(253, 234, 221, .22);
+    --item: #425F7E;                   /* class rows: the mockup's darkBlue, deepened so cream text passes contrast */
+    --ok: #9fe3b4;
+    --warn: #f6cd7a;
+    --bad: #ffb3a8;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--white);
+    background: linear-gradient(to right, #1e5799 0%, #304D6D 30%, #9AD1D4 70%, #1e5799 100%);
+    background-size: 10000px 100%;
+    animation: bg 15s linear infinite;
+}
+
+@keyframes bg {
+    0%   { background-position-x: 0; }
+    100% { background-position-x: 10000px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body { animation: none; background: linear-gradient(135deg, #1e5799, #304D6D 60%, #1e5799); }
+    .splashImg { animation: none !important; }
+    * { transition: none !important; }
+}
+
+.none { display: none !important; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+a { color: var(--blue); text-underline-offset: 3px; }
+a:hover { color: var(--white); }
+:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+
+/* ------------------------------------------------------------------ logo plate */
+.logoPlate {
+    display: inline-flex;
+    background: #fff;
+    border-radius: 12px;
+    padding: 6px 14px;
+}
+.logo { display: block; width: clamp(110px, 12vw, 190px); height: auto; }
+
+/* ------------------------------------------------------------------ nav */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: var(--background);
+    border-bottom: 2px solid var(--secondary);
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, .35);
+}
+.nav .brand { display: inline-flex; border-radius: 12px; }
+.nav .navCont { display: flex; align-items: center; gap: 12px; color: var(--white); }
+.nav .greeting { font-size: 1.1rem; font-weight: 600; color: var(--white); }
+
+/* ------------------------------------------------------------------ buttons */
+button, .createBtn {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    background-color: var(--blue);
+    color: var(--ink);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+button:hover:not(:disabled), .createBtn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 0 var(--background);
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--white);
+}
+button:disabled { opacity: .55; cursor: default; }
+
+button.secondary { background: transparent; color: var(--blue); }
+button.secondary:hover:not(:disabled) { background: rgba(154, 209, 212, .18); border-color: var(--blue); color: var(--white); }
+button.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+button.danger:hover:not(:disabled) { background: rgba(255, 179, 168, .16); border-color: var(--bad); color: var(--white); }
+button.small { padding: 3px 10px; font-size: .85rem; border-radius: 6px; }
+
+.signBtn { font-size: 1.35rem; padding: 14px 26px; border-radius: 10px; }
+.signBtn:hover:not(:disabled) { transform: scale(1.1); }
+
+.signOut { font-size: .95rem; padding: 8px 14px; border-radius: 10px; }
+.signOut:hover:not(:disabled) { background-color: #b3261e; border-color: #b3261e; color: #fff; transform: scale(1.1); }
+
+/* ------------------------------------------------------------------ hero (signed out) */
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 16px 48px;
+    min-height: calc(100vh - 80px);
+}
+.heroCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: min(92vw, 52rem);
+    padding: 28px;
+    text-align: center;
+    background-color: var(--background);
+    border: 2px solid var(--secondary);
+    border-radius: 14px;
+    box-shadow: 0 0 10px 0 black;
+}
+.heroPlate { padding: 18px 28px; border-radius: 18px; }
+.hero .heroImg { display: block; width: clamp(200px, 38vw, 420px); height: auto; }
+.hero h1 { font-size: clamp(1.4rem, 3.2vw, 2.25rem); line-height: 1.2; color: var(--white); }
+.setupNote { max-width: 38rem; padding: 12px 16px; text-align: left; color: var(--white); border-left: 4px solid var(--warn); background: rgba(246, 205, 122, .14); }
+.setupNote code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.devSignIn { width: 100%; max-width: 34rem; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--muted); font-size: .9rem; }
+.devSignIn .row { justify-content: center; }
+.devSignIn .inputBox { width: 14rem; }
+
+/* ------------------------------------------------------------------ splash (checking sign-in) */
+.splash { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: var(--background); }
+.splashPlate { padding: 22px 30px; border-radius: 22px; }
+.splashImg { display: block; height: min(34vh, 220px); width: auto; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: .8; } }
+
+/* ------------------------------------------------------------------ main panel (signed in) */
+.main {
+    position: relative;
+    width: 90vw;
+    max-width: 80rem;
+    margin: 16px auto 40px;
+    padding: 20px;
+    color: var(--white);
+    background-color: var(--background);
+    border: 2px solid var(--secondary);
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 black;
+}
+.main p { color: var(--muted); font-size: 1rem; }
+.main h2 { font-size: 1.6rem; line-height: 1.25; }
+.main h3 { font-size: 1.15rem; margin: 6px 0; }
+hr { border: 0; height: 1px; margin: 14px 0; background: var(--rule); }
+.main .newClass { margin-top: 10px; }
+.muted { color: var(--muted); }
+.hint { color: var(--muted); font-size: .875rem; margin-top: 4px; }
+.error-text { color: var(--bad); }
+.small { font-size: .875rem; }
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+
+/* ------------------------------------------------------------------ class list */
+.main .classCont { display: flex; flex-direction: column; gap: 10px; padding: 10px 0; }
+
+.main .classCont .classItem {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    color: var(--white);
+    text-decoration: none;
+    background-color: var(--item);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.main .classCont .classItem:hover {
+    transform: scale(1.01);
+    box-shadow: 0 0 10px 0 var(--background);
+    background-color: var(--secondary);
+    border-color: var(--blue);
+}
+.main .classCont .classItem .classInfo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.main .classCont .classItem .joinCode { display: flex; align-items: center; gap: 10px; }
+.main .classCont .classItem p { color: var(--muted); font-size: .95rem; }
+.main .classCont .classItem strong { font: 700 1.05rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em; }
+
+/* ------------------------------------------------------------------ forms */
+label { display: block; margin-top: 12px; margin-bottom: 4px; font-weight: 600; color: var(--white); }
+.main .newClassCont { display: flex; flex-direction: column; gap: 5px; }
+.main .newClassCont .createBtn { align-self: flex-start; min-width: 10rem; margin-top: 8px; }
+
+.inputBox,
+.main input[type=text], .main input[type=number], .main input[type=date], .main input[type=datetime-local],
+.main textarea, .main select, dialog input {
+    font-size: 1rem;
+    padding: 10px;
+    color: var(--white);
+    background-color: var(--secondary);
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    max-width: 100%;
+    color-scheme: dark;
+}
+.main input[type=text], .main textarea { width: 100%; }
+.main textarea { min-height: 6.5rem; resize: vertical; }
+.inputBox::placeholder, .main textarea::placeholder { color: #e0cec2; opacity: .85; }
+.main input[type=file] { color: var(--muted); }
+.main input[type=file]::file-selector-button {
+    margin-right: 12px; padding: 6px 12px; font: inherit; font-weight: 700; cursor: pointer;
+    color: var(--blue); background: transparent; border: 2px solid var(--blue); border-radius: 6px;
+}
+
+/* ------------------------------------------------------------------ class page */
+.backLink { display: inline-block; margin-bottom: 6px; font-size: .9rem; }
+nav.tabs { display: flex; gap: 22px; overflow-x: auto; overflow-y: hidden; margin: 12px 0 18px; border-bottom: 1px solid var(--rule); }
+nav.tabs a { padding: 8px 2px; font-weight: 600; white-space: nowrap; color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; }
+nav.tabs a:hover { color: var(--white); }
+nav.tabs a[aria-current=page] { color: var(--white); border-bottom-color: var(--blue); }
+
+.code { display: inline-block; padding: 4px 12px; font: 700 1.4rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; color: var(--white); border: 2px dashed var(--blue); border-radius: 8px; }
+
+.banner { margin: 12px 0; padding: 12px 16px; color: var(--white); border-left: 4px solid var(--warn); border-radius: 0 8px 8px 0; background: rgba(246, 205, 122, .14); }
+.banner * { color: inherit; }
+
+/* ------------------------------------------------------------------ tables */
+.table-wrap { overflow-x: auto; margin: 8px 0; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { padding: 8px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+th { font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; color: var(--muted); border-bottom: 2px solid var(--rule); }
+tbody tr:hover td { background: rgba(255, 255, 255, .04); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.present { color: var(--ok); font-weight: 700; }
+td.absent { color: var(--bad); font-weight: 700; }
+td.no_device { color: var(--muted); font-style: italic; }
+
+.badge { display: inline-block; margin: 0 4px 3px 0; padding: 1px 9px; font-size: .75rem; border: 1px solid var(--rule); border-radius: 99px; }
+.badge.ok { color: var(--ok); border-color: var(--ok); }
+.badge.warn { color: var(--warn); border-color: var(--warn); }
+.badge.bad { color: var(--bad); border-color: var(--bad); }
+
+th.meetHead { text-transform: none; letter-spacing: 0; font-size: .85rem; line-height: 1.5; min-width: 9.5rem; }
+th.meetHead div:first-child { color: var(--white); font-size: .95rem; }
+th.meetHead .small, th.meetHead button { margin-top: 4px; }
+table.matrix th:first-child, table.matrix td:first-child { position: sticky; left: 0; z-index: 1; background: var(--background); }
+
+/* ------------------------------------------------------------------ dialog + toast */
+dialog { max-width: 26rem; padding: 20px; color: var(--white); background: var(--background); border: 2px solid var(--secondary); border-radius: 10px; }
+dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog h3 { margin: 0 0 6px; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 20; transform: translateX(-50%); max-width: 90vw; padding: 10px 18px; font-weight: 600; color: var(--ink); background: var(--white); border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, .45); }
+.toast.error { background: var(--bad); }
+
+/* ------------------------------------------------------------------ small screens */
+@media (max-width: 700px) {
+    /* Wide data tables become stacked cards so every action stays on screen (the attendance matrix still scrolls sideways). */
+    table.stack thead { display: none; }
+    table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; width: 100%; }
+    table.stack tr { margin-bottom: 12px; padding: 8px 12px; background: var(--item); border: 1px solid var(--rule); border-radius: 10px; }
+    table.stack tbody tr:hover td { background: none; }
+    table.stack td { padding: 6px 0; border: 0; overflow-wrap: anywhere; }
+    table.stack td::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    table.stack td[data-label=""]::before { display: none; }
+    table.stack td select { width: 100%; }
+}
+
+@media (max-width: 640px) {
+    .nav { padding: 8px 12px; }
+    .nav .greeting { display: none; }
+    .main { width: 94vw; padding: 14px; }
+    .main .classCont .classItem { flex-direction: column; gap: 6px; }
+    .signBtn { font-size: 1.15rem; }
+}

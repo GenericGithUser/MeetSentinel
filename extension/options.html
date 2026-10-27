@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MeetSentinel</title>
+  <link rel="stylesheet" href="/src/ui/theme.css">
+  <link rel="stylesheet" href="/src/options/options.css">
+</head>
+<body class="page">
+  <header class="nav">
+    <a href="#records" class="brand" aria-label="MeetSentinel">
+      <span class="logoPlate"><img src="/assets/MeetSentinel-flat.png" alt="MeetSentinel" class="logo"></span>
+    </a>
+    <p class="greeting" id="navClass"></p>
+  </header>
+
+  <main class="main">
+    <p id="config-banner" class="banner" hidden>
+      Firebase isn't configured, so this build can't join a class. Copy <code>extension/.env.example</code> to <code>extension/.env</code>, fill it in and rebuild.
+    </p>
+
+    <nav class="tabs" aria-label="Sections">
+      <a href="#records" id="tab-records">My records</a>
+      <a href="#class" id="tab-class">Class</a>
+    </nav>
+
+    <!-- ============================== My records ============================== -->
+    <section id="sec-records" class="none" aria-labelledby="tab-records"></section>
+
+    <!-- ============================== Class ============================== -->
+    <section id="sec-class" class="none" aria-labelledby="tab-class">
+
+      <!-- Shown when NOT in a class -->
+      <div id="join-section" hidden>
+        <h2>Join your class</h2>
+        <p class="lead">Your teacher gives you a class code. Your name and email are matched to the class roster, and your teacher approves each student once.</p>
+
+        <form id="join-form" novalidate>
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+          <p class="hint">Use the university or personal email your teacher has on the roster.</p>
+
+          <label for="code">Class code</label>
+          <input id="code" name="code" type="text" autocomplete="off" spellcheck="false" required>
+
+          <details id="consent-text" open>
+            <summary>What this extension sends</summary>
+            <p>While a Google Meet meeting registered for your class is open, the extension measures how long it was in each state: focused, other tab, minimized, another app in front, and similar.</p>
+            <p>For each meeting it sends your teacher the start time, the end time, the time spent in each state, and the meeting code. It does not send page titles, URLs of other sites, screenshots, or the names of other apps. Nothing is recorded when no registered meeting is open.</p>
+            <p>Your teacher counts you as present when you were focused on the meeting, or taking notes in a web app, for at least the share of the meeting they set (90% by default). Time away from the meeting counts against that share. You can see your own records for each meeting on the My records tab.</p>
+            <p>Your name and email are sent once, when you join. A copy of your meeting records is kept on this computer so you can review them. You can leave the class from this page at any time. That stops all tracking and deletes your records and any unsent data from this browser. Meetings already sent stay with your teacher, linked to you, even if you leave or rejoin; ask your teacher if you want them deleted.</p>
+          </details>
+
+          <label class="check"><input id="consent" type="checkbox"> I have read this and agree to share this attendance information with my teacher.</label>
+
+          <p id="join-error" class="error-text" role="alert" hidden></p>
+          <button id="join-btn" type="submit" class="createBtn">Join class</button>
+        </form>
+      </div>
+
+      <!-- Shown when in a class -->
+      <div id="class-section" hidden>
+        <h2 id="class-name">Your class</h2>
+        <p id="status-line" class="status"></p>
+        <dl>
+          <dt>Name</dt><dd id="p-name"></dd>
+          <dt>Email</dt><dd id="p-email"></dd>
+          <dt>Registered meetings</dt><dd id="p-meets"></dd>
+          <dt>Attendance target</dt><dd id="p-target"></dd>
+        </dl>
+        <div class="row">
+          <button id="check-btn" type="button" class="secondary">Check approval status</button>
+          <button id="leave-btn" type="button" class="danger">Leave class</button>
+        </div>
+        <p id="class-msg" class="hint" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/options/options.js"></script>
+</body>
+</html>
+
+<!--
+This file is part of MeetSentinel.
+
+MeetSentinel is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+MeetSentinel is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>.
+-->

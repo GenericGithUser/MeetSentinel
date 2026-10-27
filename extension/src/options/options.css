@@ -1,0 +1,86 @@
+/*
+This file is part of MeetSentinel. MeetSentinel is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License,
+or (at your option) any later version. MeetSentinel is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with Foobar. If not,
+see <https: //www.gnu.org/licenses/>.*/
+
+
+body.page {
+    min-height: 100vh;
+    background: linear-gradient(to right, #1e5799 0%, #304D6D 30%, #9AD1D4 70%, #1e5799 100%);
+    background-size: 10000px 100%;
+    animation: bg 15s linear infinite;
+    font-size: 1rem; line-height: 1.5;
+}
+@keyframes bg { 0% { background-position-x: 0; } 100% { background-position-x: 10000px; } }
+@media (prefers-reduced-motion: reduce) { body.page { animation: none; background: linear-gradient(135deg, #1e5799, #304D6D 60%, #1e5799); } }
+
+.nav {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 10px 20px; width: 100%;
+    background-color: var(--background); border-bottom: 2px solid var(--secondary);
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, .35);
+}
+.nav .brand { display: inline-flex; border-radius: 12px; }
+.nav .logo { width: clamp(110px, 12vw, 170px); }
+.nav .greeting { font-size: 1.05rem; font-weight: 600; color: var(--white); text-align: right; }
+
+.main {
+    width: 90vw; max-width: 60rem; margin: 16px auto 40px; padding: 20px;
+    background-color: var(--background); border: 2px solid var(--secondary); border-radius: 10px; box-shadow: 0 0 10px 0 black;
+}
+.main h2 { font-size: 1.5rem; line-height: 1.25; margin-bottom: 6px; }
+.main h3 { font-size: 1.1rem; }
+.lead { margin-bottom: 8px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+
+nav.tabs { display: flex; gap: 22px; margin: 0 0 18px; border-bottom: 1px solid var(--rule); }
+nav.tabs a { padding: 8px 2px; margin-bottom: -1px; font-weight: 600; color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; }
+nav.tabs a:hover { color: var(--white); }
+nav.tabs a[aria-current=page] { color: var(--white); border-bottom-color: var(--blue); }
+
+/* join form */
+.main #join-form .createBtn { margin-top: 4px; min-width: 10rem; }
+details { margin: 18px 0 8px; padding: 12px 16px; border-left: 4px solid var(--blue); border-radius: 0 8px 8px 0; background: rgba(154, 209, 212, .1); }
+summary { cursor: pointer; font-weight: 700; color: var(--white); }
+details p { margin: 10px 0 0; max-width: 64ch; }
+
+/* class status */
+.status { margin: 10px 0 0; padding-left: 12px; font-weight: 700; color: var(--white); border-left: 4px solid var(--warn); }
+.status.approved { border-color: var(--ok); } .status.removed { border-color: var(--bad); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 22px; margin: 18px 0 0; }
+dt { color: var(--muted); } dd { overflow-wrap: anywhere; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* ---------------------------------------------------------------- records */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 10px; margin: 6px 0 18px; }
+.stat { padding: 12px 16px; background: var(--item); border-radius: 10px; }
+.stat strong { display: block; font-size: 1.8rem; line-height: 1.2; }
+.stat span { font-size: .875rem; color: var(--muted); }
+
+.note { margin: 0 0 16px; padding: 10px 14px; font-size: .9rem; color: var(--muted); border-left: 4px solid var(--blue); border-radius: 0 8px 8px 0; background: rgba(154, 209, 212, .1); }
+
+.meeting { margin-bottom: 14px; padding: 14px 16px; background: var(--item); border: 2px solid transparent; border-radius: 10px; }
+.mHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.mWhen { font-size: 1.1rem; font-weight: 700; }
+.mMeta { font-size: .9rem; color: var(--muted); }
+.mScore { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.mScore .pctBig { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.pctBig.meets { color: var(--ok); } .pctBig.below { color: var(--warn); }
+.mFoot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: .85rem; color: var(--muted); }
+.meeting details { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--rule); background: rgba(0, 0, 0, .12); }
+.meeting details table { margin-top: 8px; }
+.meeting details td:first-child { display: flex; align-items: center; gap: 8px; }
+.meeting .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+.empty { padding: 20px 4px; }
+.dataRow { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--rule); }
+
+@media (max-width: 640px) {
+    .nav { padding: 8px 12px; } .nav .greeting { font-size: .9rem; }
+    .main { width: 94vw; padding: 14px; }
+    .mScore { align-items: flex-start; flex-direction: row; align-items: center; gap: 12px; }
+}

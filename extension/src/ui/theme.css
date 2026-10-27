@@ -1,0 +1,113 @@
+/* MeetSentinel extension theme. Same palette and component shapes as the teacher site (web/src/styles.css), so the
+   extension and the site read as one product. As on the site, text never sits directly on the animated gradient:
+   logos sit on a white plate and content sits on dark panels. Google Sans is bundled (no request to Google Fonts). */
+
+/*
+This file is part of MeetSentinel. MeetSentinel is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License,
+or (at your option) any later version. MeetSentinel is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with Foobar. If not,
+see <https: //www.gnu.org/licenses/>.
+
+*/   
+@import "@fontsource/google-sans/latin-400.css";
+@import "@fontsource/google-sans/latin-600.css";
+@import "@fontsource/google-sans/latin-700.css";
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Google Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+
+:root {
+    --background: #304D6D;
+    --secondary: #545E75;
+    --white: #fdeadd;
+    --blue: #9AD1D4;
+    --darkBlue: #82A0BC;
+    --ink: #12263a;
+    --muted: #ecdacd;
+    --rule: rgba(253, 234, 221, .22);
+    --item: #425F7E;
+    --ok: #9fe3b4;
+    --warn: #f6cd7a;
+    --bad: #ffb3a8;
+    --grey: #8d9bb0;
+}
+
+body { color: var(--white); }
+.none { display: none !important; }
+[hidden] { display: none !important; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:hover { color: var(--white); }
+:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+hr { border: 0; height: 1px; margin: 14px 0; background: var(--rule); }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.hint { color: var(--muted); font-size: .875rem; margin-top: 4px; }
+.error-text { color: var(--bad); }
+p { color: var(--muted); }
+
+/* ---- logo plate (the wordmark's grey "Meet" vanishes on dark blue, so logos always sit on white) */
+.logoPlate { display: inline-flex; background: #fff; border-radius: 12px; padding: 6px 14px; }
+.logo { display: block; height: auto; }
+
+/* ---- buttons */
+button, .createBtn {
+    font-size: 1rem; font-weight: 700; padding: 8px 16px;
+    background-color: var(--blue); color: var(--ink);
+    border: 2px solid var(--blue); border-radius: 8px; cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+button:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 10px 0 var(--background); background-color: var(--secondary); border-color: var(--secondary); color: var(--white); }
+button:disabled { opacity: .55; cursor: default; }
+button.secondary { background: transparent; color: var(--blue); }
+button.secondary:hover:not(:disabled) { background: rgba(154, 209, 212, .18); border-color: var(--blue); color: var(--white); }
+button.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+button.danger:hover:not(:disabled) { background: rgba(255, 179, 168, .16); border-color: var(--bad); color: var(--white); }
+button.small { padding: 3px 10px; font-size: .85rem; border-radius: 6px; }
+/* text-style button for quiet actions */
+button.link { all: unset; cursor: pointer; color: var(--blue); font-weight: 600; text-underline-offset: 3px; }
+button.link:hover { color: var(--white); text-decoration: underline; transform: none; box-shadow: none; }
+button.link:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; border-radius: 4px; }
+
+/* ---- forms */
+label { display: block; margin-top: 12px; margin-bottom: 4px; font-weight: 600; color: var(--white); }
+input[type=text], input[type=email] {
+    width: 100%; font-size: 1rem; padding: 10px; color: var(--white); background-color: var(--secondary);
+    border: 2px solid var(--blue); border-radius: 10px; color-scheme: dark;
+}
+input::placeholder { color: #e0cec2; opacity: .85; }
+label.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; margin: 14px 0; }
+label.check input { margin-top: 4px; width: 1.1rem; height: 1.1rem; accent-color: var(--blue); }
+
+/* ---- badges */
+.badge { display: inline-block; padding: 1px 9px; font-size: .75rem; font-weight: 600; border: 1px solid var(--rule); border-radius: 99px; white-space: nowrap; }
+.badge.ok { color: var(--ok); border-color: var(--ok); }
+.badge.warn { color: var(--warn); border-color: var(--warn); }
+.badge.bad { color: var(--bad); border-color: var(--bad); }
+
+.banner { margin: 12px 0; padding: 12px 16px; color: var(--white); border-left: 4px solid var(--warn); border-radius: 0 8px 8px 0; background: rgba(246, 205, 122, .14); }
+.dot { flex: none; width: 12px; height: 12px; margin-top: 5px; border-radius: 50%; background: var(--grey); }
+.dot.active { background: var(--ok); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+
+/* ---- focus meter (live view in the popup) */
+.meter { position: relative; height: 12px; margin: 8px 0 4px; border-radius: 99px; background: rgba(255, 255, 255, .16); }
+.meter .fill { height: 100%; min-width: 4px; border-radius: 99px; background: var(--ok); transition: width .4s ease; }
+.meter .fill.below { background: var(--warn); }
+.meter .mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--white); border-radius: 1px; }
+
+/* ---- breakdown bar + legend (records) */
+.bar { display: flex; height: 14px; overflow: hidden; border-radius: 7px; background: rgba(255, 255, 255, .12); }
+.bar span { display: block; height: 100%; }
+.g-focused { background: var(--ok); } .g-notes { background: var(--blue); } .g-visible { background: var(--warn); }
+.g-away { background: var(--bad); } .g-outside { background: var(--grey); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 10px; font-size: .85rem; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 6px; list-style: none; }
+.legend .sw { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+
+/* ---- tables */
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--rule); }
+th { font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

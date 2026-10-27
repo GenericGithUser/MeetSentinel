@@ -1,0 +1,218 @@
+rules_version = '2';
+
+// MeetSentinel security rules. There is no server code (Spark plan), so these rules ARE the backend.
+//
+// Identities
+//   Teachers sign in with Google on the website  -> sign_in_provider == "google.com"
+//   Students are anonymous Firebase users created by the extension -> sign_in_provider == "anonymous"
+//
+// Data model
+//   joinCodes/{CODE}                                   { classId }
+//   classes/{classId}                                  { name, ownerUid, joinCode, meetCodes[], threshold, createdAt }
+//   classes/{classId}/roster/{rosterId}                { name, universityEmail, personalEmail }          teacher only
+//   classes/{classId}/students/{uid}                   { name, email, joinCode, status, rosterId?, createdAt }
+//       status: pending -> approved (teacher, needs rosterId) | left (student) | removed (teacher)
+//       A membership is never deleted by a student: its sessions live under it, and deleting it would orphan them.
+//   classes/{classId}/students/{uid}/sessions/{id}     { classId, meetCode, start, end, totals, uploadedAt }
+//   classes/{classId}/meetings/{key}                   { meetCode, date, start, end }                    teacher only
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- helpers
+    function signedIn() { return request.auth != null; }
+    function provider() { return request.auth.token.firebase.sign_in_provider; }
+
+    // Anyone with a verified Google account can run classes. To restrict this to an approved list of teachers,
+    // add the allowlist line below and create a doc teachers/{their-email} for each teacher in the console.
+    function isTeacher() {
+      return signedIn()
+        && provider() == 'google.com'
+        && request.auth.token.email_verified == true;
+        // && exists(/databases/$(database)/documents/teachers/$(request.auth.token.email));
+    }
+
+    function classPath(classId) { return /databases/$(database)/documents/classes/$(classId); }
+    function memberPath(classId, uid) { return /databases/$(database)/documents/classes/$(classId)/students/$(uid); }
+    function codePath(code) { return /databases/$(database)/documents/joinCodes/$(code); }
+
+    function isOwner(classId) {
+      return isTeacher() && get(classPath(classId)).data.ownerUid == request.auth.uid;
+    }
+    // An ACTIVE membership (pending or approved). Students who left or were removed no longer see the class.
+    function isMember(classId) {
+      return signedIn()
+        && exists(memberPath(classId, request.auth.uid))
+        && get(memberPath(classId, request.auth.uid)).data.status in ['pending', 'approved'];
+    }
+
+    // 10 chars from a 32-symbol alphabet with no I, O, 0 or 1
+    function validCode(c) { return c is string && c.matches('^[A-HJ-NP-Z2-9]{10}$'); }
+
+    // ------------------------------------------------------------- join codes
+    // Students can GET a code they know but can never LIST them: the code itself is the capability.
+    match /joinCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isTeacher()
+        && validCode(code)
+        && request.resource.data.keys().hasOnly(['classId'])
+        && request.resource.data.classId is string
+        && getAfter(classPath(request.resource.data.classId)).data.ownerUid == request.auth.uid
+        && getAfter(classPath(request.resource.data.classId)).data.joinCode == code;
+      allow update: if false;
+      allow delete: if isTeacher()
+        && get(classPath(resource.data.classId)).data.ownerUid == request.auth.uid;
+    }
+
+    // ---------------------------------------------------------------- classes
+    match /classes/{classId} {
+
+      function validClass(d) {
+        return d.keys().hasOnly(['name', 'ownerUid', 'joinCode', 'meetCodes', 'threshold', 'createdAt'])
+          && d.keys().hasAll(['name', 'ownerUid', 'joinCode', 'meetCodes', 'threshold', 'createdAt'])
+          && d.name is string && d.name.size() >= 1 && d.name.size() <= 100
+          && validCode(d.joinCode)
+          && d.meetCodes is list && d.meetCodes.size() <= 30
+          && d.threshold is number && d.threshold >= 0.5 && d.threshold <= 1;
+      }
+
+      allow read: if signedIn() && (resource.data.ownerUid == request.auth.uid || isMember(classId));
+
+      allow create: if isTeacher()
+        && validClass(request.resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isTeacher()
+        && resource.data.ownerUid == request.auth.uid
+        && validClass(request.resource.data)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isTeacher() && resource.data.ownerUid == request.auth.uid;
+
+      // ---------------------------------------------------------------- roster (teacher only)
+      match /roster/{rosterId} {
+        allow read: if isOwner(classId);
+        allow create, update: if isOwner(classId)
+          && request.resource.data.keys().hasOnly(['name', 'universityEmail', 'personalEmail'])
+          && request.resource.data.keys().hasAll(['name', 'universityEmail', 'personalEmail'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 120
+          && request.resource.data.universityEmail is string && request.resource.data.universityEmail.size() <= 254
+          && request.resource.data.personalEmail is string && request.resource.data.personalEmail.size() <= 254;
+        allow delete: if isOwner(classId);
+      }
+
+      // ---------------------------------------------------------------- meeting window overrides (teacher only)
+      match /meetings/{meetingKey} {
+        allow read: if isOwner(classId);
+        allow create, update: if isOwner(classId)
+          && meetingKey.matches('^[a-z]{3}-[a-z]{4}-[a-z]{3}_[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.keys().hasOnly(['meetCode', 'date', 'start', 'end'])
+          && request.resource.data.keys().hasAll(['meetCode', 'date', 'start', 'end'])
+          && request.resource.data.meetCode is string
+          && request.resource.data.date is string
+          && request.resource.data.start is number
+          && request.resource.data.end is number
+          && request.resource.data.end > request.resource.data.start;
+        allow delete: if isOwner(classId);
+      }
+
+      // ---------------------------------------------------------------- students
+      match /students/{uid} {
+
+        allow read: if signedIn() && (request.auth.uid == uid || isOwner(classId));
+
+        // A student creates their own PENDING membership using a valid join code. Nothing else.
+        allow create: if signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['name', 'email', 'joinCode', 'status', 'createdAt'])
+          && request.resource.data.keys().hasAll(['name', 'email', 'joinCode', 'status', 'createdAt'])
+          && request.resource.data.status == 'pending'
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 100
+          && request.resource.data.email is string
+          && request.resource.data.email.size() <= 254
+          && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+          && request.resource.data.createdAt == request.time
+          && validCode(request.resource.data.joinCode)
+          && exists(codePath(request.resource.data.joinCode))
+          && get(codePath(request.resource.data.joinCode)).data.classId == classId;
+
+        // TEACHER: approve (needs a roster link), send back to pending, remove (the record is KEPT), or restore.
+        // Only the student can set "left", so a teacher action is never confused with the student's own choice.
+        allow update: if isOwner(classId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'rosterId'])
+          && request.resource.data.status in ['pending', 'approved', 'removed']
+          && (request.resource.data.status != 'approved' || request.resource.data.rosterId is string);
+
+        // STUDENT: may change nothing but their own status, and only to leave, or to come back after leaving.
+        // Nobody approves themselves: coming back gives "approved" only to someone the teacher already approved
+        // (their record still carries the roster link), otherwise "pending". A student the teacher removed can't
+        // change anything, because "removed" is in neither branch.
+        allow update: if signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && (
+            (resource.data.status in ['pending', 'approved'] && request.resource.data.status == 'left')
+            || (resource.data.status == 'left'
+                && request.resource.data.status == ('rosterId' in resource.data ? 'approved' : 'pending'))
+          );
+
+        // Deleting a membership orphans its sessions, so only the teacher can, and the site deletes the sessions with it.
+        allow delete: if isOwner(classId);
+
+        // -------------------------------------------------------------- sessions
+        match /sessions/{sessionId} {
+
+          function okNum(t, k) { return !(k in t) || (t[k] is number && t[k] >= 0); }
+
+          function validTotals(t, durationMs) {
+            return t is map
+              && t.keys().hasOnly(['active', 'visible_unfocused', 'notes_tab_focused', 'page_hidden',
+                                   'other_tab_focused', 'minimized', 'browser_not_focused', 'not_in_meeting'])
+              && okNum(t, 'active') && okNum(t, 'visible_unfocused') && okNum(t, 'notes_tab_focused')
+              && okNum(t, 'page_hidden') && okNum(t, 'other_tab_focused') && okNum(t, 'minimized')
+              && okNum(t, 'browser_not_focused') && okNum(t, 'not_in_meeting')
+              // The state times cannot add up to more than the session lasted (2 s of rounding slack).
+              && (t.get('active', 0) + t.get('visible_unfocused', 0) + t.get('notes_tab_focused', 0)
+                  + t.get('page_hidden', 0) + t.get('other_tab_focused', 0) + t.get('minimized', 0)
+                  + t.get('browser_not_focused', 0) + t.get('not_in_meeting', 0)) <= durationMs + 2000;
+          }
+
+          // Create-only. The document ID is the session's UUID, so a retried upload cannot duplicate it,
+          // and nobody (including the student) can edit a session after the fact.
+          allow create: if signedIn()
+            && request.auth.uid == uid
+            && get(memberPath(classId, uid)).data.status == 'approved'
+            && request.resource.data.keys().hasOnly(['classId', 'meetCode', 'start', 'end', 'totals', 'uploadedAt'])
+            && request.resource.data.keys().hasAll(['classId', 'meetCode', 'start', 'end', 'totals', 'uploadedAt'])
+            && request.resource.data.classId == classId
+            // Only meetings the teacher registered for this class
+            && request.resource.data.meetCode in get(classPath(classId)).data.meetCodes
+            && request.resource.data.start is number
+            && request.resource.data.end is number
+            && request.resource.data.end > request.resource.data.start
+            && request.resource.data.end - request.resource.data.start <= 43200000
+            // no sessions from the future, none older than 30 days
+            && request.resource.data.end <= request.time.toMillis() + 300000
+            && request.resource.data.start >= request.time.toMillis() - 2592000000
+            && validTotals(request.resource.data.totals, request.resource.data.end - request.resource.data.start)
+            && request.resource.data.uploadedAt == request.time;
+
+          allow read: if signedIn() && (request.auth.uid == uid || isOwner(classId));
+          allow update: if false;
+          // Attendance evidence is the teacher's to manage: a student can neither erase nor re-create their sessions.
+          allow delete: if isOwner(classId);
+        }
+      }
+    }
+
+    // The teacher's report reads every student's sessions with one collection-group query
+    // (where classId == X). The rule checks ownership using the classId stored on each session.
+    match /{path=**}/sessions/{sessionId} {
+      allow read: if signedIn() && isOwner(resource.data.classId);
+    }
+  }
+}

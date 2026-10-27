@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MeetSentinel</title>
+  <link rel="stylesheet" href="/src/ui/theme.css">
+  <link rel="stylesheet" href="/src/popup/popup.css">
+</head>
+<body class="popup">
+  <header class="pHead">
+    <span class="logoPlate"><img src="/assets/MeetSentinel-flat.png" alt="MeetSentinel" class="logo"></span>
+    <span class="pLinks">
+      <button type="button" class="link" id="recordsBtn">Records</button>
+      <button type="button" class="link" id="settingsBtn">Settings</button>
+    </span>
+  </header>
+
+  <section class="pStatus" aria-live="polite">
+    <span id="dot" class="dot"></span>
+    <div>
+      <div id="state" class="state">…</div>
+      <div id="detail" class="muted small"></div>
+    </div>
+  </section>
+
+  <!-- shown while a meeting is being tracked -->
+  <section id="live" class="pBlock none">
+    <div class="meterRow"><span>Focus so far</span><strong id="livePct">—</strong></div>
+    <div class="meter" id="meter" role="meter" aria-label="Focus so far" aria-valuemin="0" aria-valuemax="100">
+      <div class="fill" id="liveFill"></div><div class="mark" id="liveMark"></div>
+    </div>
+    <p class="hint" id="liveHint"></p>
+    <table id="liveTable"></table>
+  </section>
+
+  <!-- shown when not in a meeting and there is at least one past meeting -->
+  <section id="last" class="pBlock none">
+    <h2>Last meeting</h2>
+    <div class="lastRow">
+      <div>
+        <div id="lastWhen" class="lastWhen"></div>
+        <div id="lastMeta" class="muted small"></div>
+      </div>
+      <div class="lastPct"><strong id="lastPct"></strong><span id="lastBadge" class="badge"></span></div>
+    </div>
+    <div class="bar" id="lastBar" aria-hidden="true"></div>
+    <button type="button" class="link" id="allRecords">All records →</button>
+  </section>
+
+  <p id="classLine" class="classLine"></p>
+
+  <footer class="pFoot">
+    <span id="outbox" class="muted small"></span>
+    <button type="button" class="link none" id="resetBtn">Reset session (dev)</button>
+  </footer>
+
+  <script type="module" src="/src/popup/popup.js"></script>
+</body>
+</html>
+
+<!--
+This file is part of MeetSentinel.
+
+MeetSentinel is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+MeetSentinel is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>.
+
+-->
